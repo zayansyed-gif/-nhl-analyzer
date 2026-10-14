@@ -1,1 +1,13 @@
 .venv/
+
+# Local credentials and environment settings must never enter Git.
+.env
+.env.*
+!.env.example
+*.env
+secrets/
+
+# Python-generated files
+__pycache__/
+*.py[cod]
+.pytest_cache/
