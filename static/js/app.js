@@ -91,7 +91,6 @@ function navigate() {
   });
   const names = { dashboard: "Standings", search: "Player search", profile: "Player profile", teams: "Team comparison", players: "Player comparison", visualizations: "Visualizations" };
   $("#breadcrumb-current").textContent = names[page];
-  $(".sidebar-version > span").textContent = `${String(["dashboard", "search", "teams", "players", "visualizations"].indexOf(page === "profile" ? "search" : page) + 1).padStart(2, "0")} / 05`;
   document.title = `${names[page]} — PuckPulse`;
   setSidebar(false);
   if (page === "players" && state.standings && !state.defaultPlayersStarted) loadDefaultPlayers();
@@ -106,7 +105,7 @@ function setupChartDefaults() {
   if (!window.Chart) return;
   Chart.defaults.color = colors.muted;
   Chart.defaults.font.family = "Manrope, -apple-system, sans-serif";
-  Chart.defaults.font.size = 10;
+  Chart.defaults.font.size = 12;
   Chart.defaults.borderColor = colors.grid;
   Chart.defaults.plugins.legend.display = false;
   Chart.defaults.plugins.tooltip.backgroundColor = "#262a33";
@@ -140,8 +139,8 @@ function chart(id, type, data, options = {}) {
 
 function standardScales(horizontal = false) {
   return {
-    x: { border: { display: false }, grid: { display: !horizontal, color: "#24314688" }, ticks: { color: colors.muted, padding: 8, font: { size: 9 }, precision: 0 }, ...(horizontal ? { beginAtZero: true } : {}) },
-    y: { border: { display: false }, grid: { display: horizontal, color: "#24314688" }, ticks: { color: colors.muted, padding: 8, font: { size: 9 }, precision: 0 }, ...(!horizontal ? { beginAtZero: true } : {}) },
+    x: { border: { display: false }, grid: { display: !horizontal, color: colors.grid }, ticks: { color: colors.muted, padding: 8, font: { size: 12 }, precision: 0 }, ...(horizontal ? { beginAtZero: true } : {}) },
+    y: { border: { display: false }, grid: { display: horizontal, color: colors.grid }, ticks: { color: colors.muted, padding: 8, font: { size: 12 }, precision: 0 }, ...(!horizontal ? { beginAtZero: true } : {}) },
   };
 }
 
@@ -152,12 +151,17 @@ function renderSummary() {
   const offense = [...played].sort((a, b) => b.goalsFor / b.gamesPlayed - a.goalsFor / a.gamesPlayed)[0];
   const defense = [...played].sort((a, b) => a.goalsAgainst / a.gamesPlayed - b.goalsAgainst / b.gamesPlayed)[0];
   const cards = [
-    { label: "League leader", icon: "trophy", value: leader.abbreviation, unit: "", note: `${leader.name}`, detail: `${leader.points} PTS`, team: leader, corner: "01" },
-    { label: "Top offense", icon: "target", value: offense ? numeric(offense.goalsFor / offense.gamesPlayed, 2) : "—", unit: "GF / GP", note: offense?.name || "No games played yet", detail: "", team: offense, corner: "02" },
-    { label: "Tightest defense", icon: "shield", value: defense ? numeric(defense.goalsAgainst / defense.gamesPlayed, 2) : "—", unit: "GA / GP", note: defense?.name || "No games played yet", detail: "", team: defense, corner: "03" },
-    { label: "One league. Every team.", icon: "grid", value: teams.length, unit: "TEAMS", note: `${new Set(teams.map((team) => team.conference)).size} conferences`, detail: `${new Set(teams.map((team) => team.division)).size} divisions`, corner: "04" },
+    { label: "League leader", value: leader.abbreviation, unit: `${leader.points} PTS`, note: leader.name, team: leader },
+    { label: "Top offense", value: offense ? numeric(offense.goalsFor / offense.gamesPlayed, 2) : "—", unit: "GF / GP", note: offense?.name || "No games played yet", team: offense },
+    { label: "Tightest defense", value: defense ? numeric(defense.goalsAgainst / defense.gamesPlayed, 2) : "—", unit: "GA / GP", note: defense?.name || "No games played yet", team: defense },
   ];
-  $("#summary-cards").innerHTML = cards.map((card) => `<article class="stat-card ${card.team ? "" : "no-logo"}"><div class="stat-card-label">${icon(card.icon)}${card.label}</div><span class="card-corner">${card.corner}</span><div class="stat-card-value ${card.unit ? "" : "team-abbr"}">${escapeHTML(card.value)}<small>${card.unit}</small></div><div class="stat-card-note">${card.detail ? `<b>${escapeHTML(card.detail)}</b><span>·</span>` : ""}<span>${escapeHTML(card.note)}</span></div>${card.team ? image(card.team.logo, card.team.name, "stat-card-logo") : '<div class="mini-rink"><svg viewBox="0 0 100 55" aria-hidden="true"><rect x="1" y="1" width="98" height="53" rx="20"/><path d="M50 1v53M25 1v53M75 1v53"/><circle cx="50" cy="27" r="10"/></svg></div>'}</article>`).join("");
+  $("#summary-cards").innerHTML = cards.map((card) => `
+    <article class="stat-card">
+      <div class="stat-card-label">${card.label}</div>
+      <div class="stat-card-value">${escapeHTML(card.value)}<small>${escapeHTML(card.unit)}</small></div>
+      <div class="stat-card-note">${escapeHTML(card.note)}</div>
+      ${card.team ? image(card.team.logo, "", "stat-card-logo") : ""}
+    </article>`).join("");
   $("#summary-cards").setAttribute("aria-busy", "false");
   $("#team-count").textContent = teams.length;
 }
@@ -205,9 +209,9 @@ function renderDashboardCharts() {
   const differential = [...teams].sort((a, b) => b.goalDifferential - a.goalDifferential)[0];
   const scoring = [...teams].sort((a, b) => b.goalsFor - a.goalsFor)[0];
   const pulses = [
-    { team: hottest, title: hottest.streak.startsWith("W") ? "Heating up" : "Current streak", description: `${hottest.name} · Last 10: ${hottest.lastTen}`, value: hottest.streak || "—" },
-    { team: differential, title: "Making the difference", description: `${differential.name} lead in goal differential.`, value: signed(differential.goalDifferential) },
-    { team: scoring, title: "Lighting the lamp", description: `${scoring.name} have the most goals scored.`, value: `${scoring.goalsFor} GF` },
+    { team: hottest, title: hottest.streak.startsWith("W") ? "Winning streak" : "Current streak", description: `${hottest.name} · Last 10: ${hottest.lastTen}`, value: hottest.streak || "—" },
+    { team: differential, title: "Goal differential", description: `${differential.name} lead in goal differential.`, value: signed(differential.goalDifferential) },
+    { team: scoring, title: "Goals scored", description: `${scoring.name} have the most goals scored.`, value: `${scoring.goalsFor} GF` },
   ];
   $("#league-pulse").innerHTML = pulses.map((pulse) => `<div class="pulse-item">${image(pulse.team.logo, "")}<div><h3>${pulse.title}</h3><p>${escapeHTML(pulse.description)}</p></div><span class="insight-value">${escapeHTML(pulse.value)}</span></div>`).join("");
 }
@@ -216,8 +220,8 @@ function drawScatter(id, teams) {
   const played = teams.filter((team) => team.gamesPlayed > 0);
   chart(id, "scatter", { datasets: [{ data: played.map((team) => ({ x: team.goalsAgainst / team.gamesPlayed, y: team.goalsFor / team.gamesPlayed, team })), backgroundColor: "#79dced99", borderColor: colors.ice, borderWidth: 1, pointRadius: 4, pointHoverRadius: 7 }] }, {
     scales: {
-      x: { title: { display: true, text: "GOALS AGAINST / GAME →", color: colors.muted, font: { size: 8 }, padding: 9 }, grid: { color: "#24314677" }, border: { display: false }, ticks: { font: { size: 8 }, maxTicksLimit: 6 } },
-      y: { title: { display: true, text: "GOALS FOR / GAME →", color: colors.muted, font: { size: 8 }, padding: 5 }, grid: { color: "#24314677" }, border: { display: false }, ticks: { font: { size: 8 }, maxTicksLimit: 5 } },
+      x: { title: { display: true, text: "Goals against / game", color: colors.muted, font: { size: 12 }, padding: 9 }, grid: { color: "#24314677" }, border: { display: false }, ticks: { font: { size: 12 }, maxTicksLimit: 6 } },
+      y: { title: { display: true, text: "Goals for / game", color: colors.muted, font: { size: 12 }, padding: 5 }, grid: { color: "#24314677" }, border: { display: false }, ticks: { font: { size: 12 }, maxTicksLimit: 5 } },
     }, plugins: { tooltip: { callbacks: { title: (items) => items[0].raw.team.name, label: (item) => `${item.raw.y.toFixed(2)} GF/GP · ${item.raw.x.toFixed(2)} GA/GP` } } },
   });
 }
@@ -232,7 +236,7 @@ async function loadStandings(refresh = false) {
     if (!teams.some(team => team.division === state.division)) state.division = teams[0].division;
     $$(".season-label").forEach((element) => { element.textContent = season.label; });
     $("#updated-label").textContent = `NHL snapshot: ${dataDate || "current"} · 60-second cache`;
-    $("#connection-status").innerHTML = '<span class="status-dot"></span>NHL DATA';
+    $("#connection-status").innerHTML = '<span class="status-dot"></span>NHL data';
     $("#export-standings").disabled = false;
     renderSummary(); renderStandings(); renderDashboardCharts();
     if (!state.selected["team-first"]) setSelected("team-first", teams.find((team) => team.abbreviation === "TOR") || teams[0]);
@@ -392,7 +396,7 @@ function renderComparison(type, data) {
     const winnerB = !metric.neutral && a !== b && !winnerA;
     return `<div class="comparison-row"><div class="comparison-stat ${winnerA ? "winner" : ""}"><span class="compare-number">${metric.signed ? signed(a) : a}</span><div class="metric-bar"><span style="width:${Math.abs(a) / max * 100}%"></span></div></div><span class="metric-label">${metric.label}</span><div class="comparison-stat second ${winnerB ? "winner" : ""}"><span class="compare-number">${metric.signed ? signed(b) : b}</span><div class="metric-bar"><span style="width:${Math.abs(b) / max * 100}%"></span></div></div></div>`;
   }).join("");
-  $(`#${prefix}-results`).innerHTML = `<article class="panel matchup-panel"><div class="matchup-heading">${contenderHTML(data.first, type, false)}<div class="versus">VS</div>${contenderHTML(data.second, type, true)}</div><div class="comparison-label">${escapeHTML(data.season.label)} REGULAR SEASON · TOTALS</div><div class="comparison-rows">${rows}</div><div class="matchup-footer">${icon("info")}Color highlights the better total. ${type === "teams" ? "Fewer losses and goals against are better; games played may differ. Negative goal differentials use absolute bar lengths." : "Games played provide context and aren't ranked."}</div></article><div class="comparison-chart-grid"><article class="panel"><div class="panel-heading"><div><h2>${type === "teams" ? "The matchup, visualized" : "Production breakdown"}</h2><p>Real numbers. A different perspective.</p></div><span class="chart-tag">TOTALS</span></div><div class="compare-legend"><span><span class="legend-dot cyan"></span>${escapeHTML(data.first.name)}</span><span><span class="legend-dot orange"></span>${escapeHTML(data.second.name)}</span></div><div class="chart-container comparison-chart"><canvas id="${prefix}-bar" role="img" aria-label="Grouped bar chart comparing current-season statistics"></canvas></div></article><article class="panel"><div class="panel-heading"><div><h2>${type === "teams" ? "Win breakdown" : "Scoring profile"}</h2><p>${type === "teams" ? "Share of each team's games played." : "Goals, assists and points at a glance."}</p></div></div><div class="chart-container comparison-chart"><canvas id="${prefix}-radar" role="img" aria-label="${type === "teams" ? "Win, loss and overtime loss percentages" : "Radar comparison of goals, assists and points"}"></canvas></div></article></div>`;
+  $(`#${prefix}-results`).innerHTML = `<article class="panel matchup-panel"><div class="matchup-heading">${contenderHTML(data.first, type, false)}<div class="versus">VS</div>${contenderHTML(data.second, type, true)}</div><div class="comparison-label">${escapeHTML(data.season.label)} regular season · totals</div><div class="comparison-rows">${rows}</div><div class="matchup-footer">${icon("info")}Color highlights the better total. ${type === "teams" ? "Fewer losses and goals against are better; games played may differ. Negative goal differentials use absolute bar lengths." : "Games played provide context and aren't ranked."}</div></article><div class="comparison-chart-grid"><article class="panel"><div class="panel-heading"><div><h2>${type === "teams" ? "The matchup, visualized" : "Production breakdown"}</h2></div><span class="chart-tag">Totals</span></div><div class="compare-legend"><span><span class="legend-dot cyan"></span>${escapeHTML(data.first.name)}</span><span><span class="legend-dot orange"></span>${escapeHTML(data.second.name)}</span></div><div class="chart-container comparison-chart"><canvas id="${prefix}-bar" role="img" aria-label="Grouped bar chart comparing current-season statistics"></canvas></div></article><article class="panel"><div class="panel-heading"><div><h2>${type === "teams" ? "Win breakdown" : "Scoring profile"}</h2><p>${type === "teams" ? "Share of each team's games played." : "Goals, assists and points at a glance."}</p></div></div><div class="chart-container comparison-chart"><canvas id="${prefix}-radar" role="img" aria-label="${type === "teams" ? "Win, loss and overtime loss percentages" : "Radar comparison of goals, assists and points"}"></canvas></div></article></div>`;
   drawComparisonBar(`${prefix}-bar`, type, data);
   drawProfile(`${prefix}-radar`, type, data);
 }
@@ -414,9 +418,9 @@ function drawProfile(id, type, data) {
       { label: "Wins", data: values("wins"), backgroundColor: colors.ice, borderRadius: 3 },
       { label: "Losses", data: values("losses"), backgroundColor: "#426077" },
       { label: "OT losses", data: values("otLosses"), backgroundColor: colors.orange, borderRadius: 3 },
-    ] }, { scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, min: 0, max: 100, ticks: { callback: (value) => `${value}%`, font: { size: 9 } }, grid: { color: "#24314688" } } }, plugins: { legend: { display: true, position: "bottom", labels: { usePointStyle: true, boxWidth: 6, boxHeight: 6, padding: 15, font: { size: 9 } } }, tooltip: { callbacks: { label: (item) => `${item.dataset.label}: ${item.raw}%` } } } });
+    ] }, { scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, min: 0, max: 100, ticks: { callback: (value) => `${value}%`, font: { size: 12 } }, grid: { color: "#24314688" } } }, plugins: { legend: { display: true, position: "bottom", labels: { usePointStyle: true, boxWidth: 6, boxHeight: 6, padding: 15, font: { size: 12 } } }, tooltip: { callbacks: { label: (item) => `${item.dataset.label}: ${item.raw}%` } } } });
   } else {
-    chart(id, "radar", { labels: ["Goals", "Assists", "Points"], datasets: [data.first, data.second].map((player, index) => ({ label: player.name, data: [player.stats.goals, player.stats.assists, player.stats.points], borderColor: index ? colors.orange : colors.ice, backgroundColor: index ? "#eac18b16" : "#79dced1c", borderWidth: 2, pointRadius: 3 })) }, { scales: { r: { beginAtZero: true, ticks: { display: false }, grid: { color: "#34445c" }, angleLines: { color: "#34445c" }, pointLabels: { color: colors.muted, font: { size: 10 } } } } });
+    chart(id, "radar", { labels: ["Goals", "Assists", "Points"], datasets: [data.first, data.second].map((player, index) => ({ label: player.name, data: [player.stats.goals, player.stats.assists, player.stats.points], borderColor: index ? colors.orange : colors.ice, backgroundColor: index ? "#eac18b16" : "#79dced1c", borderWidth: 2, pointRadius: 3 })) }, { scales: { r: { beginAtZero: true, ticks: { display: false }, grid: { color: "#34445c" }, angleLines: { color: "#34445c" }, pointLabels: { color: colors.muted, font: { size: 12 } } } } });
   }
 }
 
@@ -458,7 +462,7 @@ function renderVisualizations() {
   }
   $("#download-chart").disabled = false;
   const teams = state.standings.teams;
-  $("#viz-content").innerHTML = '<article class="panel viz-panel"><div class="panel-heading"><div><h2>The league, ranked</h2><p>Points for every team, in official NHL standings order.</p></div><span class="chart-tag">ALL TEAMS</span></div><div class="chart-container large-chart"><canvas id="viz-main" role="img" aria-label="Bar chart of points for all NHL teams"></canvas></div><div class="viz-caption">Hover or tap for exact totals. Official NHL tiebreakers determine order when teams have the same points.</div></article><div class="viz-grid"><article class="panel"><div class="panel-heading"><div><h2>Offense vs. defense</h2><p>Per-game averages give context when games played differ.</p></div></div><div class="chart-container large-chart"><canvas id="viz-scatter" role="img" aria-label="All teams’ goals for and goals against per game"></canvas></div></article><article class="panel"><div class="panel-heading"><div><h2>The conference split</h2><p>Total points earned by teams in each conference.</p></div></div><div class="chart-container large-chart"><canvas id="viz-conference" role="img" aria-label="Doughnut chart of total points by conference"></canvas></div></article></div>';
+  $("#viz-content").innerHTML = '<article class="panel viz-panel"><div class="panel-heading"><div><h2>The league, ranked</h2><p>Points for every team, in official NHL standings order.</p></div><span class="chart-tag">All teams</span></div><div class="chart-container large-chart"><canvas id="viz-main" role="img" aria-label="Bar chart of points for all NHL teams"></canvas></div><div class="viz-caption">Hover or tap for exact totals. Official NHL tiebreakers determine order when teams have the same points.</div></article><div class="viz-grid"><article class="panel"><div class="panel-heading"><div><h2>Offense vs. defense</h2><p>Per-game averages give context when games played differ.</p></div></div><div class="chart-container large-chart"><canvas id="viz-scatter" role="img" aria-label="All teams’ goals for and goals against per game"></canvas></div></article><article class="panel"><div class="panel-heading"><div><h2>The conference split</h2><p>Total points earned by teams in each conference.</p></div></div><div class="chart-container large-chart"><canvas id="viz-conference" role="img" aria-label="Doughnut chart of total points by conference"></canvas></div></article></div>';
   const mobile = matchMedia("(max-width: 550px)").matches;
   const scales = standardScales(mobile); scales.x.grid.display = mobile; scales.y.grid.display = !mobile;
   if (mobile) { scales.y.ticks.autoSkip = false; $("#viz-main").parentElement.style.height = "850px"; }
@@ -466,7 +470,7 @@ function renderVisualizations() {
   chart("viz-main", "bar", { labels: teams.map((team) => team.abbreviation), datasets: [{ data: teams.map((team) => team.points), backgroundColor: teams.map((team) => team.conference === "Eastern" ? colors.ice : "#477b95"), borderRadius: 3, maxBarThickness: mobile ? 13 : 24 }] }, { indexAxis: mobile ? "y" : "x", scales, plugins: { tooltip: { callbacks: { title: (items) => teams[items[0].dataIndex].name, label: (item) => `${item.raw} points` } } } });
   drawScatter("viz-scatter", teams);
   const conferences = [...new Set(teams.map((team) => team.conference))];
-  chart("viz-conference", "doughnut", { labels: conferences, datasets: [{ data: conferences.map((name) => teams.filter((team) => team.conference === name).reduce((total, team) => total + team.points, 0)), backgroundColor: [colors.ice, "#477b95"], borderColor: "#131e2f", borderWidth: 6, hoverOffset: 7 }] }, { cutout: "77%", plugins: { legend: { display: true, position: "bottom", labels: { usePointStyle: true, boxWidth: 7, boxHeight: 7, padding: 20, font: { size: 10 } } }, tooltip: { callbacks: { label: (item) => `${item.label}: ${item.raw} points` } } } });
+  chart("viz-conference", "doughnut", { labels: conferences, datasets: [{ data: conferences.map((name) => teams.filter((team) => team.conference === name).reduce((total, team) => total + team.points, 0)), backgroundColor: [colors.ice, "#477b95"], borderColor: "#131e2f", borderWidth: 6, hoverOffset: 7 }] }, { cutout: "77%", plugins: { legend: { display: true, position: "bottom", labels: { usePointStyle: true, boxWidth: 7, boxHeight: 7, padding: 20, font: { size: 12 } } }, tooltip: { callbacks: { label: (item) => `${item.label}: ${item.raw} points` } } } });
 }
 
 function downloadBlob(blob, filename) {

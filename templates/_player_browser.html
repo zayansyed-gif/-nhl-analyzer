@@ -1,15 +1,15 @@
 <section class="page" id="page-search" aria-labelledby="search-title" hidden>
-  <div class="page-heading"><div><div class="eyebrow">FIND YOUR NEXT EDGE</div><h1 id="search-title">Player Search</h1><p>Explore the players behind the plays.</p></div><div class="season-chip"><span class="status-dot"></span><span class="season-label">Current season</span></div></div>
+  <div class="page-heading"><div><h1 id="search-title">Player Search</h1></div><div class="season-chip"><span class="status-dot"></span><span class="season-label">Current season</span></div></div>
   <div class="browser-search-panel">
     <form id="player-browser-form" class="browser-search" role="search"><svg aria-hidden="true"><use href="#i-search"/></svg><label class="sr-only" for="player-browser-query">Search NHL players by name</label><input id="player-browser-query" type="search" placeholder="Search players by name…" autocomplete="off" maxlength="80"><button class="icon-button" type="submit" aria-label="Search players"><svg><use href="#i-arrow"/></svg></button></form>
     <div class="browser-filters"><div class="filter-chips" id="position-filter" aria-label="Filter players by position"><button class="active" data-position="All" aria-pressed="true">All players</button><button data-position="C" aria-pressed="false">Centers</button><button data-position="W" aria-pressed="false">Wingers</button><button data-position="D" aria-pressed="false">Defense</button><button data-position="G" aria-pressed="false">Goalies</button></div><button class="text-button" id="favorites-filter" aria-pressed="false">Saved players</button></div>
-    <div class="recent-searches" id="recent-searches" hidden><span>RECENT SEARCHES</span><div id="recent-search-list"></div><button class="text-button" id="clear-recent">Clear</button></div>
+    <div class="recent-searches" id="recent-searches" hidden><span>Recent searches</span><div id="recent-search-list"></div><button class="text-button" id="clear-recent">Clear</button></div>
   </div>
-  <div class="browser-section-heading"><h2 id="player-browser-heading">NHL Points Leaders</h2><span class="chart-tag">REGULAR SEASON</span></div>
+  <div class="browser-section-heading"><h2 id="player-browser-heading">NHL Points Leaders</h2><span class="chart-tag">Regular season</span></div>
   <p class="muted browser-note" id="player-browser-note">Current-season skater totals, supplied by the NHL.</p>
   <div id="player-browser-status" class="notice error" role="alert" hidden></div>
   <div class="player-card-grid" id="player-browser-results" aria-live="polite" aria-busy="false"></div>
-  <a class="roster-link panel" href="#teams"><span class="division-emblem"><svg><use href="#i-shield"/></svg></span><span><strong>Team analytics &amp; comparisons</strong><small>Explore every NHL team, side by side.</small></span><svg><use href="#i-arrow"/></svg></a>
+  <a class="roster-link panel" href="#teams"><svg aria-hidden="true"><use href="#i-shield"/></svg><span><strong>Team analytics &amp; comparisons</strong><small>Explore every NHL team, side by side.</small></span><svg><use href="#i-arrow"/></svg></a>
 </section>
 <section class="page" id="page-profile" aria-labelledby="profile-title" hidden>
   <div class="profile-navigation"><a class="text-button" href="#search"><svg><use href="#i-arrow"/></svg>Back to player search</a><span class="season-label">Current season</span></div>

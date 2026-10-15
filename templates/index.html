@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f131c">
-  <meta name="description" content="IceIQ NHL Stats Analyzer. Explore live standings, compare teams and players, and see the game through data.">
+  <meta name="description" content="PuckPulse NHL Stats Analyzer. Explore live standings, compare teams and players, and see the game through data.">
   <title>PuckPulse — NHL Stats Analyzer</title>
   <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -36,72 +36,134 @@
   <aside class="sidebar" id="sidebar" aria-label="Main navigation">
     <a href="#dashboard" class="brand" aria-label="PuckPulse dashboard">
       <svg class="brand-mark" viewBox="0 0 36 40" aria-hidden="true"><path d="m18 2 15 9v18l-15 9L3 29V11L18 2Z"/><path d="m10 26 6-8 5 4 6-10M22 12h5v5"/></svg>
-      <span>Puck<span class="brand-accent">Pulse</span><small>NHL STATS ANALYZER</small></span>
+      <span>Puck<span class="brand-accent">Pulse</span><small>NHL Stats Analyzer</small></span>
     </a>
     <button class="icon-button sidebar-close" id="sidebar-close" aria-label="Close navigation"><svg><use href="#i-close"/></svg></button>
-    <div class="nav-caption">EXPLORE THE LEAGUE</div>
     <nav class="nav-links">
-      <a class="nav-item active" href="#dashboard" data-page="dashboard" aria-current="page"><svg><use href="#i-trophy"/></svg><span>Standings</span><span class="nav-dot"></span></a>
+      <a class="nav-item active" href="#dashboard" data-page="dashboard" aria-current="page"><svg><use href="#i-trophy"/></svg><span>Standings</span></a>
       <a class="nav-item" href="#search" data-page="search"><svg><use href="#i-search"/></svg><span>Player search</span></a>
       <a class="nav-item" href="#teams" data-page="teams"><svg><use href="#i-compare"/></svg><span>Team comparison</span></a>
       <a class="nav-item" href="#players" data-page="players"><svg><use href="#i-players"/></svg><span>Player comparison</span></a>
       <a class="nav-item" href="#visualizations" data-page="visualizations"><svg><use href="#i-chart"/></svg><span>Visualizations</span></a>
     </nav>
     <div class="sidebar-bottom">
-      <div class="rink-card">
-        <svg class="rink" viewBox="0 0 180 86" aria-hidden="true"><rect x="2" y="2" width="176" height="82" rx="33"/><path d="M90 2v82M48 3v80M132 3v80M16 15v56M164 15v56"/><circle cx="90" cy="43" r="15"/><circle cx="37" cy="23" r="9"/><circle cx="37" cy="63" r="9"/><circle cx="143" cy="23" r="9"/><circle cx="143" cy="63" r="9"/><circle class="puck" cx="90" cy="43" r="3"/></svg>
-        <strong>A little more insight.<br>A whole new game.</strong>
-        <span>Your home for NHL analytics.</span>
-      </div>
       <div class="data-source"><span class="status-dot"></span><span>Powered by NHL data</span><svg><use href="#i-shield"/></svg></div>
-      <span class="sidebar-version">PUCKPULSE ANALYTICS <span>01 / 05</span></span>
     </div>
   </aside>
 
   <div class="app-shell">
     <header class="topbar">
       <div class="breadcrumb"><button class="icon-button mobile-menu" id="menu-button" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar"><svg><use href="#i-menu"/></svg></button><a class="mobile-brand" href="#dashboard">PuckPulse</a><span class="breadcrumb-root">NHL Stats Analyzer</span><span class="breadcrumb-slash">/</span><span id="breadcrumb-current">Standings</span></div>
-      <div class="topbar-actions"><span class="today" id="today"></span><span class="topbar-divider"></span><span class="live-label" id="connection-status"><span class="status-dot"></span>NHL DATA</span><button class="icon-button" id="refresh-button" title="Refresh data (NHL responses are cached for 60 seconds)" aria-label="Refresh NHL data"><svg><use href="#i-refresh"/></svg></button></div>
+      <div class="topbar-actions"><span class="today" id="today"></span><span class="topbar-divider"></span><span class="live-label" id="connection-status"><span class="status-dot"></span>NHL data</span><button class="icon-button" id="refresh-button" title="Refresh data (NHL responses are cached for 60 seconds)" aria-label="Refresh NHL data"><svg><use href="#i-refresh"/></svg></button></div>
     </header>
 
     <main id="main" tabindex="-1">
       <section class="page active" id="page-dashboard" aria-labelledby="dashboard-title">
-        <div class="page-heading"><h1 id="dashboard-title">NHL Standings</h1><div class="season-chip"><span class="status-dot"></span><span class="season-label">Loading season</span><span class="chip-divider"></span><span class="season-type">Regular season</span></div></div>
+        <div class="page-heading">
+          <h1 id="dashboard-title">NHL Standings</h1>
+          <div class="season-chip">
+            <span class="season-label">Loading season</span>
+            <span class="chip-divider"></span>
+            <span class="season-type">Regular season</span>
+          </div>
+        </div>
         <div id="dashboard-error" class="notice error" role="alert" hidden></div>
         <div class="stat-grid" id="summary-cards" aria-live="polite" aria-busy="true">
-          <div class="stat-card skeleton-card"><span class="skeleton"></span><span class="skeleton big"></span><span class="skeleton"></span></div><div class="stat-card skeleton-card"><span class="skeleton"></span><span class="skeleton big"></span><span class="skeleton"></span></div><div class="stat-card skeleton-card"><span class="skeleton"></span><span class="skeleton big"></span><span class="skeleton"></span></div><div class="stat-card skeleton-card"><span class="skeleton"></span><span class="skeleton big"></span><span class="skeleton"></span></div>
+          <div class="stat-card skeleton-card"><span class="skeleton"></span><span class="skeleton big"></span><span class="skeleton"></span></div>
+          <div class="stat-card skeleton-card"><span class="skeleton"></span><span class="skeleton big"></span><span class="skeleton"></span></div>
+          <div class="stat-card skeleton-card"><span class="skeleton"></span><span class="skeleton big"></span><span class="skeleton"></span></div>
         </div>
         <div class="dashboard-grid">
-          <article class="panel standings-panel">
-            <div class="standings-controls"><div class="segmented view-tabs" id="standings-view" aria-label="Standings view"><button data-view="division" class="active" aria-pressed="true"><svg><use href="#i-grid"/></svg>Division</button><button data-view="wildcard" aria-pressed="false"><svg><use href="#i-compare"/></svg>Wildcard</button><button data-view="league" aria-pressed="false"><svg><use href="#i-trophy"/></svg>League</button></div><div class="filter-chips" id="division-filter" aria-label="Filter standings"></div></div>
-            <div class="division-banner"><div class="division-emblem"><svg><use href="#i-trophy"/></svg></div><div><h2 id="standings-heading">Eastern · Atlantic</h2><p id="standings-description">Top 3 division positions · current standings</p></div><span class="race-label">PLAYOFF RACE<small><span id="team-count">—</span> teams</small></span></div>
-            <div class="table-toolbar"><span class="table-hint">Select a team to compare<svg><use href="#i-arrow"/></svg></span><label class="table-search"><svg><use href="#i-search"/></svg><input id="standings-search" type="search" placeholder="Find a team" aria-label="Search standings"></label><button class="text-button" id="export-standings" aria-label="Export standings as CSV" disabled><svg><use href="#i-download"/></svg><span>Export CSV</span></button></div>
-            <div class="table-scroll"><table class="standings-table"><caption class="sr-only">Current NHL regular-season standings. Select a team to compare it.</caption><thead><tr><th scope="col">#</th><th scope="col">TEAM</th><th scope="col"><abbr title="Games played">GP</abbr></th><th scope="col">W</th><th scope="col">L</th><th scope="col"><abbr title="Overtime losses">OT</abbr></th><th scope="col"><abbr title="Points">PTS</abbr></th><th scope="col"><abbr title="Goal differential">DIFF</abbr></th><th scope="col">STREAK</th></tr></thead><tbody id="standings-body"><tr><td colspan="9" class="table-message">Loading live NHL standings…</td></tr></tbody></table></div>
-            <div class="table-footer"><span id="standings-showing">Waiting for NHL data</span><button class="text-button" id="show-all-teams" disabled>View all teams<svg><use href="#i-arrow"/></svg></button></div>
+          <article class="standings-panel">
+            <div class="standings-controls">
+              <div class="segmented view-tabs" id="standings-view" aria-label="Standings view">
+                <button data-view="division" class="active" aria-pressed="true">Division</button>
+                <button data-view="wildcard" aria-pressed="false">Wildcard</button>
+                <button data-view="league" aria-pressed="false">League</button>
+              </div>
+              <div class="filter-chips" id="division-filter" aria-label="Filter standings"></div>
+            </div>
+            <div class="standings-heading-row">
+              <div class="division-banner">
+                <h2 id="standings-heading">Eastern · Atlantic</h2>
+                <p id="standings-description">Top 3 division positions · current standings</p>
+                <span class="standings-count"><span id="team-count">—</span> teams</span>
+              </div>
+              <div class="table-toolbar">
+                <label class="table-search">
+                  <svg aria-hidden="true"><use href="#i-search"/></svg>
+                  <input id="standings-search" type="search" placeholder="Find a team" aria-label="Search standings">
+                </label>
+                <button class="text-button" id="export-standings" aria-label="Export standings as CSV" disabled>
+                  <svg aria-hidden="true"><use href="#i-download"/></svg><span>Export CSV</span>
+                </button>
+              </div>
+            </div>
+            <div class="table-scroll">
+              <table class="standings-table">
+                <caption class="sr-only">Current NHL regular-season standings. Select a team to compare it.</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Team</th>
+                    <th scope="col"><abbr title="Games played">GP</abbr></th>
+                    <th scope="col">W</th>
+                    <th scope="col">L</th>
+                    <th scope="col"><abbr title="Overtime losses">OT</abbr></th>
+                    <th scope="col"><abbr title="Points">PTS</abbr></th>
+                    <th scope="col"><abbr title="Goal differential">Diff</abbr></th>
+                    <th scope="col">Streak</th>
+                  </tr>
+                </thead>
+                <tbody id="standings-body"><tr><td colspan="9" class="table-message">Loading live NHL standings…</td></tr></tbody>
+              </table>
+            </div>
+            <div class="table-footer">
+              <span id="standings-showing">Waiting for NHL data</span>
+              <button class="text-button" id="show-all-teams" disabled>View all teams<svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            </div>
           </article>
-          <div class="standings-legend"><strong>STANDINGS GUIDE</strong><span><i class="legend-line"></i> Top 3 division position</span><span><i class="legend-line wildcard"></i> Wildcard position</span><p>Current positions are based on NHL rankings. They do not indicate a clinched playoff berth. Scroll the table for more stats.</p></div>
-          <article class="panel points-panel"><div class="panel-heading"><div><div class="eyebrow small">THE FRONT RUNNERS</div><h2>The points race</h2></div><span class="chart-tag">TOP 6</span></div><div class="chart-legend"><span class="legend-dot cyan"></span>Regular-season points</div><div class="chart-container points-chart"><canvas id="points-chart" role="img" aria-label="Bar chart of the six teams with the most points"></canvas></div><div class="race-insight" id="race-insight"><svg><use href="#i-info"/></svg><span>Loading the league leaders…</span></div><a class="panel-link" href="#visualizations">Explore the data<svg><use href="#i-arrow"/></svg></a></article>
-          <article class="panel scatter-panel"><div class="panel-heading"><div><h2>Both sides of the ice</h2><p>Scoring power meets defensive discipline.</p></div><span class="chart-tag">ALL TEAMS</span></div><div class="chart-container scatter-chart"><canvas id="scatter-chart" role="img" aria-label="Scatter chart of goals for and against per game for each NHL team"></canvas></div><div class="chart-footnote"><span class="legend-dot cyan"></span>Each dot is a team <span class="footnote-right">Higher + further left = stronger balance</span></div></article>
-          <article class="panel pulse-panel"><div class="panel-heading"><div><div class="eyebrow small">WORTH A CLOSER LOOK</div><h2>League pulse</h2></div><svg class="panel-icon"><use href="#i-chart"/></svg></div><div id="league-pulse" class="pulse-list"><p class="muted">Finding the stories in the numbers…</p></div><a class="panel-link" href="#teams">Go head to head<svg><use href="#i-arrow"/></svg></a></article>
+          <div class="standings-legend">
+            <span><i class="legend-line"></i>Top 3 division position</span>
+            <span><i class="legend-line wildcard"></i>Wildcard position</span>
+            <p>Current positions do not indicate a clinched playoff berth. Select a team to compare it.</p>
+          </div>
+          <article class="panel points-panel">
+            <div class="panel-heading"><h2>Points leaders</h2><span class="chart-tag">Top 6</span></div>
+            <div class="chart-legend"><span class="legend-dot cyan"></span>Regular-season points</div>
+            <div class="chart-container points-chart"><canvas id="points-chart" role="img" aria-label="Bar chart of the six teams with the most points"></canvas></div>
+            <div class="race-insight" id="race-insight"><svg aria-hidden="true"><use href="#i-info"/></svg><span>Loading the league leaders…</span></div>
+            <a class="panel-link" href="#visualizations">Explore the data<svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </article>
+          <article class="panel pulse-panel">
+            <div class="panel-heading"><h2>League highlights</h2></div>
+            <div id="league-pulse" class="pulse-list"><p class="muted">Loading league statistics…</p></div>
+            <a class="panel-link" href="#teams">Compare teams<svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </article>
+          <article class="panel scatter-panel">
+            <div class="panel-heading"><div><h2>Offense vs. defense</h2><p>Goals scored and allowed per game.</p></div><span class="chart-tag">All teams</span></div>
+            <div class="chart-container scatter-chart"><canvas id="scatter-chart" role="img" aria-label="Scatter chart of goals for and against per game for each NHL team"></canvas></div>
+            <div class="chart-footnote"><span class="legend-dot cyan"></span>Each dot is a team<span class="footnote-right">Higher and further left = stronger balance</span></div>
+          </article>
         </div>
       </section>
 
       <section class="page" id="page-teams" aria-labelledby="teams-title" hidden>
-        <div class="page-heading"><div><div class="eyebrow">HEAD TO HEAD</div><h1 id="teams-title">Team Comparison</h1><p>Find the edge before the next face-off.</p></div><div class="season-chip"><span class="status-dot"></span><span class="season-label">Current season</span><span class="chip-divider"></span>Regular season</div></div>
-        <div class="panel selection-panel"><div class="selection-grid"><div class="selector-field"><label for="team-first">FIRST TEAM</label><div class="search-control"><svg><use href="#i-search"/></svg><input id="team-first" class="team-input" placeholder="Search a team or abbreviation" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="team-first-results"><svg class="chevron"><use href="#i-chevron"/></svg></div><div class="search-results" id="team-first-results" role="listbox" hidden></div></div><button class="swap-button" id="swap-teams" aria-label="Swap teams" title="Swap teams"><svg><use href="#i-compare"/></svg></button><div class="selector-field"><label for="team-second">SECOND TEAM</label><div class="search-control"><svg><use href="#i-search"/></svg><input id="team-second" class="team-input" placeholder="Search a team or abbreviation" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="team-second-results"><svg class="chevron"><use href="#i-chevron"/></svg></div><div class="search-results" id="team-second-results" role="listbox" hidden></div></div><button class="primary-button" id="compare-teams" disabled>Compare teams<svg><use href="#i-arrow"/></svg></button></div><p class="selection-note"><svg><use href="#i-info"/></svg>Current NHL regular-season totals. Overtime losses are separate from regulation losses.</p></div>
+        <div class="page-heading"><div><h1 id="teams-title">Team Comparison</h1></div><div class="season-chip"><span class="status-dot"></span><span class="season-label">Current season</span><span class="chip-divider"></span>Regular season</div></div>
+        <div class="panel selection-panel"><div class="selection-grid"><div class="selector-field"><label for="team-first">First team</label><div class="search-control"><svg><use href="#i-search"/></svg><input id="team-first" class="team-input" placeholder="Search a team or abbreviation" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="team-first-results"><svg class="chevron"><use href="#i-chevron"/></svg></div><div class="search-results" id="team-first-results" role="listbox" hidden></div></div><button class="swap-button" id="swap-teams" aria-label="Swap teams" title="Swap teams"><svg><use href="#i-compare"/></svg></button><div class="selector-field"><label for="team-second">Second team</label><div class="search-control"><svg><use href="#i-search"/></svg><input id="team-second" class="team-input" placeholder="Search a team or abbreviation" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="team-second-results"><svg class="chevron"><use href="#i-chevron"/></svg></div><div class="search-results" id="team-second-results" role="listbox" hidden></div></div><button class="primary-button" id="compare-teams" disabled>Compare teams<svg><use href="#i-arrow"/></svg></button></div><p class="selection-note"><svg><use href="#i-info"/></svg>Current NHL regular-season totals. Overtime losses are separate from regulation losses.</p></div>
         <div id="team-error" class="notice error" role="alert" hidden></div>
         <div id="team-results" aria-live="polite"></div>
       </section>
 
       <section class="page" id="page-players" aria-labelledby="players-title" hidden>
-        <div class="page-heading"><div><div class="eyebrow">HEAD TO HEAD</div><h1 id="players-title">Player Comparison</h1><p>Two players. One clear picture of their season.</p></div><div class="season-chip"><span class="status-dot"></span><span class="season-label">Current season</span><span class="chip-divider"></span>Regular season</div></div>
-        <div class="panel selection-panel"><div class="selection-grid"><div class="selector-field"><label for="player-first">FIRST PLAYER</label><div class="search-control"><svg><use href="#i-search"/></svg><input id="player-first" placeholder="Search a player by name" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="player-first-results"></div><div class="search-results" id="player-first-results" role="listbox" hidden></div></div><button class="swap-button" id="swap-players" aria-label="Swap players" title="Swap players"><svg><use href="#i-compare"/></svg></button><div class="selector-field"><label for="player-second">SECOND PLAYER</label><div class="search-control"><svg><use href="#i-search"/></svg><input id="player-second" placeholder="Search a player by name" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="player-second-results"></div><div class="search-results" id="player-second-results" role="listbox" hidden></div></div><button class="primary-button" id="compare-players" disabled>Compare players<svg><use href="#i-arrow"/></svg></button></div><p class="selection-note"><svg><use href="#i-info"/></svg>Search by name and choose a result. NHL player IDs are found automatically. Skaters only.</p></div>
+        <div class="page-heading"><div><h1 id="players-title">Player Comparison</h1></div><div class="season-chip"><span class="status-dot"></span><span class="season-label">Current season</span><span class="chip-divider"></span>Regular season</div></div>
+        <div class="panel selection-panel"><div class="selection-grid"><div class="selector-field"><label for="player-first">First player</label><div class="search-control"><svg><use href="#i-search"/></svg><input id="player-first" placeholder="Search a player by name" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="player-first-results"></div><div class="search-results" id="player-first-results" role="listbox" hidden></div></div><button class="swap-button" id="swap-players" aria-label="Swap players" title="Swap players"><svg><use href="#i-compare"/></svg></button><div class="selector-field"><label for="player-second">Second player</label><div class="search-control"><svg><use href="#i-search"/></svg><input id="player-second" placeholder="Search a player by name" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="player-second-results"></div><div class="search-results" id="player-second-results" role="listbox" hidden></div></div><button class="primary-button" id="compare-players" disabled>Compare players<svg><use href="#i-arrow"/></svg></button></div><p class="selection-note"><svg><use href="#i-info"/></svg>Search by name and choose a result. NHL player IDs are found automatically. Skaters only.</p></div>
         <div id="player-error" class="notice error" role="alert" hidden></div>
         <div id="player-results" aria-live="polite"><div class="panel empty-state"><svg><use href="#i-players"/></svg><h2>Great comparisons start with two names.</h2><p>Search for two NHL skaters above to explore their current season.</p></div></div>
       </section>
 
       <section class="page" id="page-visualizations" aria-labelledby="visualizations-title" hidden>
-        <div class="page-heading"><div><div class="eyebrow">A DIFFERENT VIEW OF THE GAME</div><h1 id="visualizations-title">Let the numbers talk<span class="accent">.</span></h1><p>Explore the league. Spot the patterns. Find your edge.</p></div><div class="season-chip"><span class="status-dot"></span><span class="season-label">Current season</span></div></div>
+        <div class="page-heading"><div><h1 id="visualizations-title">Visualizations</h1></div><div class="season-chip"><span class="status-dot"></span><span class="season-label">Current season</span></div></div>
         <div class="viz-toolbar panel"><div class="segmented" id="viz-mode" aria-label="Visualization type"><button data-mode="league" class="active" aria-pressed="true">League overview</button><button data-mode="teams" aria-pressed="false">Team comparison</button><button data-mode="players" aria-pressed="false">Player comparison</button></div><button class="text-button" id="download-chart"><svg><use href="#i-download"/></svg>Save chart</button></div>
         <div id="viz-content"></div>
       </section>
